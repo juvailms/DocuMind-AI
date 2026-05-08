@@ -2,8 +2,6 @@ from docx import Document
 from sentence_transformers import SentenceTransformer
 import faiss
 import numpy as np
-# from pypdf import PdfReader
-# import pdfplumber
 import fitz
 import re
 
@@ -27,14 +25,9 @@ class MyRAG:
         return [self.texts[i] for i in indices[0]]
     
 
-
 def load_txt(file_path):
     with open(file_path, "r", encoding="utf-8") as f:
         return f.read()
-
-# def load_pdf(file_path):
-#     reader = PdfReader(file_path)
-#     text = ""
 
 def load_pdf(file_path):
     doc = fitz.open(file_path)
@@ -52,7 +45,8 @@ def load_pdf(file_path):
             "text": page_text.strip(),
             "page": page_num + 1
         })
-
+    
+    # print(f"Here is your docs:\n{docs}")
     return docs
 
 def load_docx(file_path):
@@ -65,12 +59,12 @@ def load_docx(file_path):
     return text
 
 def load_document(file_path):
-    if file_path.endswith(".txt"):
-        return load_txt(file_path)
-    elif file_path.endswith(".pdf"):
+    # if file_path.endswith(".txt"):
+        # return load_txt(file_path)
+    if file_path.endswith(".pdf"):
         return load_pdf(file_path)
-    elif file_path.endswith(".docx"):
-        return load_docx(file_path)
+    # elif file_path.endswith(".docx"):
+        # return load_docx(file_path)
     else:
         raise ValueError("Unsupported file type")
 
@@ -89,7 +83,6 @@ def chunk_text(text, size=500, overlap=100):
         else:
             chunks.append(current_chunk.strip())
 
-            # 🔥 Add overlap
             overlap_text = current_chunk[-overlap:]
             current_chunk = overlap_text + " " + sentence
 
@@ -112,4 +105,14 @@ def process_documents(docs):
                 "page": d["page"]
             })
 
+    # print(f"Here is your chunked_docs:\n{chunked_docs}")
     return chunked_docs
+    
+def build_rag(file_path):
+    docs = load_document(file_path)
+    chunked_docs = process_documents(docs)
+
+    rag = MyRAG()
+    rag.add_documents(chunked_docs)
+
+    return rag

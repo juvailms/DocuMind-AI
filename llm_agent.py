@@ -4,18 +4,15 @@ from dotenv import load_dotenv
 from rag_pipeline import MyRAG, load_document, process_documents
 from rag_prompt import RAG_PROMPT
 
-
 load_dotenv()
 
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
-file_path = "Juvail_LLM_Assign (1) (1).pdf"
+file_path = "sample_file.pdf"
 
 docs = load_document(file_path)
 
 chunked_docs = process_documents(docs)
-print (f"here is the new new chunked_docs :\n {chunked_docs}")
-
 
 rag = MyRAG()
 rag.add_documents(chunked_docs)
@@ -26,11 +23,10 @@ def main():
         question = input("\nAsk: ")
 
         results  = rag.search(question, k =5)
-        # print (f"here is the context : {context}")
         context = "\n\n".join(
             [f"(Page {d['page']}) {d['text']}" for d in results]
         )
-        print (f"here is the new new context :\n {context}")
+        # print (f"Here is the context :\n {context}")
 
         prompt = RAG_PROMPT.format(context=context, question=question)
 
