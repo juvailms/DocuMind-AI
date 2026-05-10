@@ -29,7 +29,14 @@ if "file_name" not in st.session_state:
 
 # ---------------- SIDEBAR ----------------
 with st.sidebar:
-    st.header("Select Document")
+    st.caption(
+    """
+DocuMind-AI is a RAG-powered PDF assistant that allows users to upload documents, retrieve relevant information using semantic search, and generate AI-based answers from document context.
+
+Upload a PDF, preview the content, and ask questions naturally.
+"""
+)
+    # st.header("Select Document")
 
     uploaded_file = st.file_uploader("Upload PDF", type=["pdf"])
 
