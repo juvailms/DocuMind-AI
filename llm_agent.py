@@ -8,7 +8,7 @@ load_dotenv()
 
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
-file_path = "sample_file.pdf"
+file_path = "sample_files/BERT Pre-training&Transformers_sample doc.pdf"
 
 docs = load_document(file_path)
 
@@ -31,7 +31,7 @@ def main():
         prompt = RAG_PROMPT.format(context=context, question=question)
 
         response=client.chat.completions.create(
-            model = "llama-3.1-8b-instant",
+            model = "openai/gpt-oss-20b",
             messages=[
         {"role": "system", "content": "You are a strict RAG-based extraction assistant. Always rely only on provided context."},
         {"role": "user", "content": prompt}
