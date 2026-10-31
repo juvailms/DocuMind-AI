@@ -121,7 +121,7 @@ if st.session_state.rag:
 
         with st.spinner("Generating answer..."):
             response = client.chat.completions.create(
-                model="llama-3.1-8b-instant",
+                model="openai/gpt-oss-20b",
                 messages=[
                     {"role": "system", "content": "You are a strict RAG-based extraction assistant. Always rely only on provided context."},
                     {"role": "user", "content": prompt}

@@ -2,7 +2,7 @@ from docx import Document
 from sentence_transformers import SentenceTransformer
 import faiss
 import numpy as np
-import fitz
+import pymupdf
 import re
 
 class MyRAG:
@@ -30,7 +30,7 @@ def load_txt(file_path):
         return f.read()
 
 def load_pdf(file_path):
-    doc = fitz.open(file_path)
+    doc = pymupdf.open(file_path)
     docs = []
 
     for page_num, page in enumerate(doc):
