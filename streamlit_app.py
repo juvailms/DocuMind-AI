@@ -5,8 +5,25 @@ from groq import Groq
 import os
 from dotenv import load_dotenv
 import tempfile
-import base64
-from collections import defaultdict
+import pymupdf
+
+@st.cache_data
+def render_pdf_page(file_bytes, page_number):
+
+    doc = pymupdf.open(stream=file_bytes, filetype="pdf")
+
+    page = doc.load_page(page_number)
+
+    pix = page.get_pixmap(
+        matrix=pymupdf.Matrix(1.5, 1.5),
+        alpha=False
+    )
+
+    image_bytes = pix.tobytes("png")
+
+    doc.close()
+
+    return image_bytes
 
 load_dotenv()
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
@@ -85,23 +102,53 @@ if st.session_state.file_name:
 
 # -------- PREVIEW --------
 if st.session_state.file_path:
+
     st.subheader("Document Preview")
 
     try:
         with open(st.session_state.file_path, "rb") as f:
             pdf_bytes = f.read()
 
-        base64_pdf = base64.b64encode(pdf_bytes).decode("utf-8")
-
-        st.markdown(
-            f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="500"></iframe>',
-            unsafe_allow_html=True
+        doc = pymupdf.open(
+            stream=pdf_bytes,
+            filetype="pdf"
         )
 
-    except:
-        st.warning("⚠ Preview not supported. Download to view.")
-        # st.download_button("⬇ Download PDF", pdf_bytes)
+        total_pages = len(doc)
+        doc.close()
 
+        if total_pages > 0:
+
+            page_number = st.number_input(
+                "Select Page",
+                min_value=1,
+                max_value=total_pages,
+                value=1,
+                step=1
+            )
+
+            image_bytes = render_pdf_page(
+                pdf_bytes,
+                page_number - 1
+            )
+
+            st.image(
+                image_bytes,
+                use_container_width=True
+            )
+
+            st.caption(
+                f"Page {page_number} of {total_pages}"
+            )
+
+        else:
+            st.warning("This PDF contains no pages.")
+
+    except Exception as e:
+
+        st.warning("PDF preview is unavailable.")
+
+        st.error(str(e))
 
 # -------- CHAT --------
 if st.session_state.rag:
